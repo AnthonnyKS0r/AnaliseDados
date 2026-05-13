@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <title>Importar CSV</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+</head>
+<body>
+    <main class="container" style="margin-top: 40px;">
+        <nav><ul><li><a href="index.html" class="secondary">⬅ Voltar ao Menu</a></li></ul></nav>
+        <h1>📤 Importar CSV</h1>
+        <p>Selecione seu arquivo CSV exportado (com colunas como Authors, Title, Year, etc).</p>
+        
+        <article>
+            <input type="file" id="csv-file" accept=".csv" />
+            <button id="import-btn" onclick="startImport()">Iniciar Importação</button>
+            <progress id="progress-bar" value="0" max="100" style="display: none; margin-top: 20px;"></progress>
+            <p id="status-text" style="margin-top: 10px; font-weight: bold;"></p>
+        </article>
+    </main>
+
+    <script>
+        const SUPABASE_URL = 'https://cjtbqzcbzrxkddndobfu.supabase.co'; 
+        const SUPABASE_KEY = 'SUA_CHAVE_AQUI_NOVAMENTE'; // Cole a chave grande do supabase aqui!
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function startImport() {
+            const file = document.getElementById('csv-file').files[0];
+            if (!file) return alert("Selecione um arquivo CSV primeiro!");
+
+            const btn = document.getElementById('import-btn');
+            const status = document.getElementById('status-text');
+            const progress = document.getElementById('progress-bar');
+            
+            btn.disabled = true;
+            progress.style.display = 'block';
+            status.innerText = "Lendo arquivo...";
+
+            Papa.parse(file, {
+                header: true,
+                skipEmptyLines: true,
+                complete: async function(results) {
+                    const data = results.data;
+                    progress.max = data.length;
+                    status.innerText = `Iniciando gravação no banco (${data.length} linhas)... Por favor, não feche a página.`;
+
+                    for (let i = 0; i < data.length; i++) {
+                        const row = data[i];
+                        if (!row.Title) continue; // Pula linha se não tiver título
+                        progress.value = i + 1;
+                        status.innerText = `Processando linha ${i+1} de ${data.length}...`;
+
+                        try {
+                            // 1. INSERIR ARTIGO
+                            const { data: artData, error: artErr } = await supabaseClient.from('Article').insert({
+                                Title: row['Title'],
+                                Year: parseInt(row['Year']) || null,
+                                Source_Title: row['Source title'],
+                                Quotation: parseInt(row['Cited by']) || 0,
+                                DOI: row['DOI'],
+                                Link: row['Link'],
+                                Abstract: row['Abstract'],
+                                ISSN: row['ISSN'],
+                                ISBN: row['ISBN'],
+                                Language: row['Language of Original Document'],
+                                Document_Type: row['Document Type'],
+                                Access_Type: row['Open Access']
+                            }).select();
+                            if (artErr) continue;
+                            const articleId = artData[0].ID;
+
+                            // 2. INSERIR AUTORES E JUNÇÃO
+                            if (row['Author(s) ID']) {
+                                const ids = row['Author(s) ID'].split(';').map(s => s.trim());
+                                const names = (row['Authors'] || '').split(';').map(s => s.trim());
+                                const fullNames = (row['Author full names'] || '').split(';').map(s => s.trim());
+
+                                for (let j = 0; j < ids.length; j++) {
+                                    if (!ids[j]) continue;
+                                    // Upsert salva o autor ou ignora se o ID já existir
+                                    await supabaseClient.from('Author').upsert({ ID: ids[j], Name: names[j], Full_Name: fullNames[j] });
+                                    await supabaseClient.from('Article_Author').insert({ ID_Article: articleId, ID_Author: ids[j] });
+                                }
+                            }
+
+                            // 3. INSERIR PALAVRAS CHAVE E JUNÇÃO
+                            let kws = [];
+                            if (row['Author Keywords']) kws.push(...row['Author Keywords'].split(';').map(s => s.trim().toLowerCase()));
+                            if (row['Index Keywords']) kws.push(...row['Index Keywords'].split(';').map(s => s.trim().toLowerCase()));
+
+                            for (let kw of kws) {
+                                if (!kw) continue;
+                                let { data: kwData } = await supabaseClient.from('Keyword').select('ID').eq('Keyword', kw);
+                                let kwId;
+                                if (kwData && kwData.length > 0) kwId = kwData[0].ID;
+                                else {
+                                    let { data: newKw } = await supabaseClient.from('Keyword').insert({ Keyword: kw }).select();
+                                    if (newKw) kwId = newKw[0].ID;
+                                }
+                                if (kwId) await supabaseClient.from('Article_keyword').insert({ ID_Article: articleId, ID_Keyword: kwId });
+                            }
+                        } catch (e) {
+                            console.error(`Erro na linha ${i}:`, e);
+                        }
+                    }
+                    
+                    status.innerText = "✅ Importação Concluída com Sucesso!";
+                    btn.disabled = false;
+                }
+            });
+        }
+    </script>
+</body>
+</html>
