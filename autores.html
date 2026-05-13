@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Autores</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <main class="container" style="margin-top: 40px;">
+        <nav><ul><li><a href="index.html" class="secondary">⬅ Voltar ao Menu</a></li></ul></nav>
+        <h1>✍️ Banco de Autores</h1>
+        <p>Pesquisadores extraídos da base de dados.</p>
+        
+        <table class="striped">
+            <thead>
+                <tr><th>Scopus ID</th><th>Nome Curto</th><th>Nome Completo</th></tr>
+            </thead>
+            <tbody id="lista-autores">
+                <tr><td colspan="3" aria-busy="true">Carregando autores...</td></tr>
+            </tbody>
+        </table>
+    </main>
+
+    <script>
+        const SUPABASE_URL = 'https://cjtbqzcbzrxkddndobfu.supabase.co'; 
+        const SUPABASE_KEY = 'SUA_CHAVE_AQUI_NOVAMENTE';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function loadAuthors() {
+            // Busca todos os autores
+            const { data: authors, error } = await supabaseClient.from('Author').select('*').order('Name', { ascending: true });
+            
+            const tbody = document.getElementById('lista-autores');
+            tbody.innerHTML = '';
+
+            if (error || !authors || authors.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3">Nenhum autor encontrado. Importe um CSV primeiro.</td></tr>';
+                return;
+            }
+            
+            authors.forEach((author) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td><code>${author.ID}</code></td><td>${author.Name || '-'}</td><td>${author.Full_Name || '-'}</td>`;
+                tbody.appendChild(tr);
+            });
+        }
+        loadAuthors();
+    </script>
+</body>
+</html>
