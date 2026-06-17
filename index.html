@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="light">
+<html lang="pt-BR" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,15 +8,27 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="global.css">
     <style>
-        .dashboard-header { text-align: center; margin: 4rem 0; }
-        .dashboard-header h1 { font-weight: 800; color: #0f172a; font-size: 3rem; margin-bottom: 0.5rem; }
-        .dashboard-header p { color: #64748b; font-size: 1.2rem; }
+        .dashboard-header { text-align: center; margin: 4rem 0 3rem; }
+        .dashboard-header h1 {
+            font-weight: 800;
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(90deg, var(--text-primary), var(--accent-cyan));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .dashboard-header p { color: var(--text-secondary); font-size: 1.2rem; }
         .grid-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
-        .dash-card { display: block; text-decoration: none; color: inherit; transition: transform 0.2s; }
+        .dash-card { display: block; text-decoration: none; color: inherit; transition: transform 0.2s, border-color 0.2s; }
         .dash-card article { text-align: center; padding: 2.5rem 1rem; border: none; }
         .dash-card:hover { transform: translateY(-5px); }
-        .dash-card.primary article { background: var(--pico-primary); color: white; }
-        .dash-card.primary article p { color: #e0e7ff; }
+        .dash-card:hover article { border-color: var(--accent-cyan); }
+        .dash-card.primary article {
+            background: linear-gradient(155deg, rgba(34,211,238,0.16), rgba(167,139,250,0.10));
+            border: 1px solid var(--accent-cyan);
+        }
+        .dash-card.primary article h3, .dash-card.primary article p { color: var(--text-primary); }
         .icon { font-size: 3rem; margin-bottom: 1rem; display: block; }
     </style>
 </head>
@@ -28,6 +40,13 @@
         </header>
 
         <div class="grid-cards">
+            <a href="dashboard.html" class="dash-card primary card">
+                <article>
+                    <span class="icon">📊</span>
+                    <h3>Dashboard</h3>
+                    <p>Métricas, gráficos e nuvem de palavras-chave</p>
+                </article>
+            </a>
             <a href="artigos.html" class="dash-card card">
                 <article>
                     <span class="icon">📄</span>
@@ -49,10 +68,10 @@
                     <p>Ranking e tendências</p>
                 </article>
             </a>
-            <a href="importar.html" class="dash-card primary card">
+            <a href="importar.html" class="dash-card card">
                 <article>
                     <span class="icon">☁️</span>
-                    <h3 style="color: white;">Importar Dados</h3>
+                    <h3>Importar Dados</h3>
                     <p>Carga via CSV do Scopus</p>
                 </article>
             </a>
