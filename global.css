@@ -1,40 +1,105 @@
-/* global.css */
+/* ===================================================================
+   global.css — Tema "Night Lab" 
+   Dark mode moderno para o Analytics Hub
+   =================================================================== */
+
 :root {
-    --pico-primary: #2563eb; /* Azul corporativo moderno */
-    --pico-primary-background: #2563eb;
-    --pico-primary-hover: #1d4ed8;
-    --pico-background-color: #f8fafc;
+    /* --- Paleta base --- */
+    --bg-base: #090c14;
+    --bg-elevated: #0f1422;
+    --bg-surface: #141a2c;
+    --bg-surface-hover: #1a2138;
+    --border-subtle: #232b45;
+    --border-strong: #2f3a5c;
+
+    /* --- Acentos --- */
+    --accent-cyan: #22d3ee;
+    --accent-cyan-soft: rgba(34, 211, 238, 0.12);
+    --accent-violet: #a78bfa;
+    --accent-violet-soft: rgba(167, 139, 250, 0.12);
+    --accent-amber: #fbbf24;
+    --accent-emerald: #34d399;
+    --accent-rose: #fb7185;
+
+    /* --- Texto --- */
+    --text-primary: #eef1fb;
+    --text-secondary: #8b93ad;
+    --text-muted: #5b6584;
+
+    /* --- Pico overrides --- */
+    --pico-primary: var(--accent-cyan);
+    --pico-primary-background: var(--accent-cyan);
+    --pico-primary-hover: #67e3f9;
+    --pico-primary-inverse: #04111a;
+    --pico-background-color: var(--bg-base);
+    --pico-color: var(--text-primary);
+    --pico-h1-color: var(--text-primary);
+    --pico-h2-color: var(--text-primary);
+    --pico-muted-color: var(--text-secondary);
+    --pico-card-background-color: var(--bg-surface);
+    --pico-card-border-color: var(--border-subtle);
+    --pico-card-sectioning-background-color: var(--bg-elevated);
+    --pico-form-element-background-color: var(--bg-elevated);
+    --pico-form-element-border-color: var(--border-strong);
+    --pico-form-element-color: var(--text-primary);
+    --pico-table-border-color: var(--border-subtle);
+    --pico-table-row-stripped-background-color: rgba(255,255,255,0.02);
+
     --pico-font-family: 'Inter', system-ui, sans-serif;
-    --pico-border-radius: 0.75rem;
+    --font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+    --pico-border-radius: 0.85rem;
 }
 
-body { background-color: var(--pico-background-color); }
+html { color-scheme: dark; }
+
+body {
+    background-color: var(--bg-base);
+    background-image:
+        radial-gradient(circle at 15% 0%, rgba(34, 211, 238, 0.07), transparent 45%),
+        radial-gradient(circle at 85% 15%, rgba(167, 139, 250, 0.06), transparent 40%);
+    background-attachment: fixed;
+    color: var(--text-primary);
+}
+
+a { color: var(--accent-cyan); }
+mark { background: var(--accent-amber); color: #1a1303; }
+code, kbd, samp { font-family: var(--font-mono); color: var(--accent-cyan); background: rgba(34,211,238,0.08); }
+
+::selection { background: var(--accent-cyan-soft); color: var(--text-primary); }
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-cyan); }
 
 /* Navegação Global */
 .top-nav {
-    background: white;
+    background: var(--bg-elevated);
     padding: 1rem 2rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    border-bottom: 1px solid var(--border-subtle);
     margin-bottom: 2rem;
-    border-radius: 0 0 1rem 1rem;
+    border-radius: 0;
 }
 
-.top-nav ul { margin: 0; padding: 0; list-style: none; display: flex; gap: 1rem; align-items: center;}
-.top-nav a { color: #475569; text-decoration: none; font-weight: 500; transition: color 0.2s;}
-.top-nav a:hover { color: var(--pico-primary); }
+.top-nav ul { margin: 0; padding: 0; list-style: none; display: flex; gap: 1.75rem; align-items: center;}
+.top-nav a { color: var(--text-secondary); text-decoration: none; font-weight: 500; transition: color 0.2s; font-size: 0.95rem; }
+.top-nav a:hover { color: var(--accent-cyan); }
+.top-nav strong { color: var(--text-primary); letter-spacing: 0.02em; }
 
 /* Cards e Tabelas */
 .card {
-    background: white;
+    background: var(--bg-surface);
     padding: 2rem;
     border-radius: 1rem;
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.02) inset, 0 12px 24px -12px rgba(0,0,0,0.55);
+    border: 1px solid var(--border-subtle);
 }
 
 table { font-size: 0.9rem; }
-th { color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
-td { vertical-align: middle; }
+th { color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; background: transparent; }
+td { vertical-align: middle; color: var(--text-primary); }
+table.striped tbody tr:nth-child(odd) { background: rgba(255,255,255,0.018); }
 
 /* Ações CRUD */
 .action-group { display: flex; gap: 0.5rem; }
@@ -45,13 +110,15 @@ td { vertical-align: middle; }
     position: fixed;
     bottom: 20px;
     right: 20px;
-    background: #333;
-    color: white;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    color: var(--text-primary);
     padding: 1rem 1.5rem;
-    border-radius: 0.5rem;
-    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+    border-radius: 0.65rem;
+    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.6);
     z-index: 9999;
     transition: opacity 0.3s ease;
 }
-.toast.success { background: #10b981; }
-.toast.error { background: #ef4444; }
+.toast.success { background: rgba(52, 211, 153, 0.12); border-color: var(--accent-emerald); color: var(--accent-emerald); }
+.toast.error { background: rgba(251, 113, 133, 0.12); border-color: var(--accent-rose); color: var(--accent-rose); }
+.toast.info { background: rgba(34, 211, 238, 0.12); border-color: var(--accent-cyan); color: var(--accent-cyan); }
